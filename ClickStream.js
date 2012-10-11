@@ -75,7 +75,7 @@ var ClickStream = function(code) {
 			bytesTotal: murmurhash3_32_gc(document.documentElement.innerHTML), // Not actual byteTotal but provides a unique document version hash.
 			pr: 10,
 			cs: 2,
-			type: type
+			type: type,
 			height: $(window).height(),
 			width: $(window).width()
 		};
