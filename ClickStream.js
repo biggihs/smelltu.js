@@ -4,6 +4,7 @@
 
 	Requirements:
 		jQuery
+		murmurhash3_gc.js (https://github.com/garycourt/murmurhash-js/)
 
 	Usage example:
 		var click_stream = new ClickStream("XXXXX");
@@ -22,8 +23,8 @@ var _log = function(msg) {
 }
 
 var _fire_and_forget = function(url, data) {
-	var $iframe = $('<iframe>');
-	var $form = $('<form>');
+	var $iframe = $('<iframe/>');
+	var $form = $('<form/>');
 
 	$iframe.css({display: 'none'});
 	
@@ -33,7 +34,7 @@ var _fire_and_forget = function(url, data) {
 	});
 
 	for(key in data) {
-		var $input = $('<input>').attr({
+		var $input = $('<input/>').attr({
 			type: 'hidden',
 			name: key,
 			value: data[key]
@@ -41,7 +42,7 @@ var _fire_and_forget = function(url, data) {
 		$form.append($input);
 	}
 	
-	$form.append('<input type="submit">');
+	$form.append('<input/>', {type: 'submit'});
 
 	$("body").append($iframe);
 	$iframe.contents().find('body').append($form);
@@ -49,28 +50,8 @@ var _fire_and_forget = function(url, data) {
 	$form.submit();
 }
 
-var _get_contentlength = function(url, callback) {
-	$.ajax({
-		type: "HEAD",
-		async: true,
-		url: url,
-		success: function(message, text, response) {
-			callback(response.getResponseHeader('Content-Length'));
-		}
-	});
-}
-
-var document_size = document.documentElement.innerHTML.length;
-$("img, video").each(function() {
-	_get_contentlength($(this).attr('src'), function(ContentLength) {
-		document_size += ContentLength;
-	});
-});
-// TODO: ClickStream.pageview should not execute before this has finished.
-// Using a trigger would be good solution.
-
-var ClickStream = function(tag) {
-	this.tag = tag;
+var ClickStream = function(code) {
+	this._code = code;
 	this.hasRun = false;
 	this.clickHasRegistered = false;
 
@@ -89,30 +70,26 @@ var ClickStream = function(tag) {
 	};
 
 	this.track = function(type, options) {
-		// Only log per 100th pageview:
-		if(type == "pageview" && Math.floor((Math.random()*100)+1) != 1) {
-			return this;
-		}
-
 		data = {
-			sb: null,
-			v: navigator.appVersion,
-			source: parent.window.location.href,
-			//referrer: parent.window.location.href,
-			//referrer_title: parent.document.title,
-			bytesTotal: document_size,
+			source: window.location.href,
+			bytesTotal: murmurhash3_32_gc(document.documentElement.innerHTML), // Not actual byteTotal but provides a unique document version hash.
+			pr: 10,
+			cs: 2,
+			type: type
 			height: $(window).height(),
-			width: $(window).width(),
-			cs: "1",
-			type: type,
-			url: window.location.href
+			width: $(window).width()
 		};
 
 		for(key in options) {
 			data[key] = options[key];
 		}
 
-		_fire_and_forget("http://www.smelltu.is/track/" + this.tag + "/", data);
+		// Only log per pr pageview:
+		if(type == "pageview" && Math.floor((Math.random()*data.pr)) != 0) {
+			return this;
+		}
+
+		_fire_and_forget("http://www.smelltu.is/track/" + this._code + "/", data);
 
 		return self;
 	};
