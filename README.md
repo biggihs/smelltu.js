@@ -8,7 +8,7 @@ Javascript fyrir smelltu.is
 * jQuery
 
 ####Usage:
-	```html
+```html
 	<script type="text/javascript">
 		$(document).ready(function() {
 			var click_stream = new ClickStream(
@@ -23,4 +23,4 @@ Javascript fyrir smelltu.is
 			});
 		});
 	</script>
-	```
+```
