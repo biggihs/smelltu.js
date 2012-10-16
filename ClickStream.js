@@ -4,14 +4,18 @@
 
 	Requirements:
 		jQuery
-		murmurhash3_gc.js (https://github.com/garycourt/murmurhash-js/)
 
 	Usage example:
-		var click_stream = new ClickStream("XXXXX");
+		var click_stream = new ClickStream(
+			'Test Banner 16.10.2012', // Good practice is to use publish date.
+			'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
+		);
+		
 		click_stream.pageview();
+		
 		$(document).click(functiom() {
 			click_stream.clickthrough();
-		});		
+		});
 */
 
 
@@ -50,8 +54,14 @@ var _fire_and_forget = function(url, data) {
 	$form.submit();
 }
 
-var ClickStream = function(code) {
+var ClickStream = function(name, code) {
+	if(!name || !code) {
+		throw "ClickStream() takes 2 arguments: name, code";
+	}
+	
+	this._name = encodeURIComponent(name);
 	this._code = code;
+
 	this.hasRun = false;
 	this.clickHasRegistered = false;
 
@@ -70,9 +80,17 @@ var ClickStream = function(code) {
 	};
 
 	this.track = function(type, options) {
+		var url = window.location.href;
+		
+		if(url.indexOf('?') == -1) {
+			url += '?name=' + this._name;
+		} else {
+			url += '&name=' + this._name;
+		}
+
 		data = {
-			source: window.location.href,
-			bytesTotal: murmurhash3_32_gc(document.documentElement.innerHTML), // Not actual byteTotal but provides a unique document version hash.
+			source: url,
+			bytesTotal: 1, // Not used. Banners should not be automatically named.
 			pr: 10,
 			cs: 2,
 			type: type,

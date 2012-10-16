@@ -14,17 +14,16 @@
 	</style>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="../murmurhash3_gc.js"></script>
 	<script src="../ClickStream.js"></script>
 
 	<script>
 		$(document).ready(function() {
-			var click_stream = new ClickStream("f2cb4ee2d05fc7762b17cc3beee294fffe544275");
+			var click_stream = new ClickStream('Test Banner 16.10.2012', 'f2cb4ee2d05fc7762b17cc3beee294fffe544275');
 
-			click_stream.pageview({source:'http://wwww.test.com/test_banner.html'});
+			click_stream.pageview();
 			
 			$(document).click(function() {
-				click_stream.clickthrough({source:'http://wwww.test.com/test_banner.html'});
+				click_stream.clickthrough();
 			});
 		});
 	</script>
