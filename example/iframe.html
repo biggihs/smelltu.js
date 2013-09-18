@@ -2,38 +2,38 @@
 <html>
 
 <head>
-	<title>smelltu.is javascript example banner</title>
+    <title>smelltu.is javascript example banner</title>
 
-	<style>
-		body {
-			color:black;
-			margin:0;
-			padding:0;
-			background-color: green;
-		}
-	</style>
+    <style>
+        body {
+            color:black;
+            margin:0;
+            padding:0;
+            background-color: green;
+        }
+    </style>
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="../ClickStream.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="../ClickStream.js"></script>
 
-	<script type="text/javascript">
-		$(document).ready(function() {
-			var click_stream = new ClickStream(
-				'Test Banner 16.10.2012', // Good practice is to use publish date.
-				'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
-			);
-			
-			click_stream.pageview();
-			
-			$(document).click(function() {
-				click_stream.clickthrough();
-			});
-		});
-	</script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var click_stream = new ClickStream(
+                'Test Banner 16.10.2012', // Good practice is to use publish date.
+                'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
+            );
+
+            click_stream.pageview({pr:1});
+
+            $(document).click(function() {
+                click_stream.clickthrough();
+            });
+        });
+    </script>
 </head>
 
 <body>
-	this is an example banner
+    this is an example banner
 </body>
 
 </html>

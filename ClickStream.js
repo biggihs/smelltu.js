@@ -1,118 +1,110 @@
 /*
-	Author: Arnar Yngvason
-	Company: Hvíta Húsið
+    Author: Arnar Yngvason
+    Company: Hvíta Húsið
 
-	Requirements:
-		jQuery
+    Requirements:
+        jQuery
 
-	Usage example:
-		<script type="text/javascript">
-			$(document).ready(function() {
-				var click_stream = new ClickStream(
-					'Test Banner 16.10.2012', // Good practice is to use publish date.
-					'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
-				);
-				
-				click_stream.pageview();
-				
-				$(document).click(function() {
-					click_stream.clickthrough();
-				});
-			});
-		</script>
+    Usage example:
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var click_stream = new ClickStream(
+                    'Test Banner 16.10.2012', // Good practice is to use publish date.
+                    'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
+                );
+                
+                click_stream.pageview();
+                
+                $(document).click(function() {
+                    click_stream.clickthrough();
+                });
+            });
+        </script>
 */
 
+(function($, undefined) {
+    function ClickStream(name, code) {
+        if(typeof name === undefined || typeof code === undefined) {
+            throw "ClickStream() takes 2 arguments: name, code";
+        }
+        
+        this._name = encodeURIComponent(name);
+        this._code = code;
 
-var _log = function(msg) {
-	try {
-		console.log(msg);
-	}
-	catch(err) {}
-}
+        this.hasRun = false;
+        this.clickHasRegistered = false;
 
-var _fire_and_forget = function(url, data) {
-	var $iframe = $('<iframe/>');
-	var $form = $('<form/>');
+        return this;
+    }
 
-	$iframe.css({display: 'none'});
-	
-	$form.attr({
-		method: 'post',
-		action: url
-	});
+    ClickStream.fire_and_forget = function(url, data) {
+        var $iframe = $('<iframe/>');
+        var $form = $('<form/>');
 
-	for(key in data) {
-		var $input = $('<input/>').attr({
-			type: 'hidden',
-			name: key,
-			value: data[key]
-		});
-		$form.append($input);
-	}
-	
-	$form.append('<input/>', {type: 'submit'});
+        $iframe.css({display: 'none'});
+        
+        $form.attr({
+            method: 'post',
+            action: url
+        });
 
-	$("body").append($iframe);
-	$iframe.contents().find('body').append($form);
+        for(var key in data) {
+            var $input = $('<input/>').attr({
+                type: 'hidden',
+                name: key,
+                value: data[key]
+            });
+            $form.append($input);
+        }
+        
+        $form.append('<input/>', {type: 'submit'});
 
-	$form.submit();
-}
+        $("body").append($iframe);
+        $iframe.contents().find('body').append($form);
 
-var ClickStream = function(name, code) {
-	if(!name || !code) {
-		throw "ClickStream() takes 2 arguments: name, code";
-	}
-	
-	this._name = encodeURIComponent(name);
-	this._code = code;
+        $form.submit();
 
-	this.hasRun = false;
-	this.clickHasRegistered = false;
+        return this;
+    };
 
-	this.pageview = function(options) {
-		if(!this.hasRun) {
-			this.hasRun = true;
-			return this.track("pageview", options);
-		}
-	};
+    ClickStream.prototype.pageview = function(options) {
+        if(!this.hasRun) {
+            this.hasRun = true;
+            return this.track("pageview", options);
+        }
+        return this;
+    };
 
-	this.clickthrough = function(options) {
-		if(!this.clickHasRegistered) {
-			this.clickHasRegistered = true;
-			return this.track("clickthrough", options);
-		}
-	};
+    ClickStream.prototype.clickthrough = function(options) {
+        if(!this.clickHasRegistered) {
+            this.clickHasRegistered = true;
+            return this.track("clickthrough", options);
+        }
+        return this;
+    };
 
-	this.track = function(type, options) {
-		var url = window.location.href;
-		
-		if(url.indexOf('?') == -1) {
-			url += '?name=' + this._name;
-		} else {
-			url += '&name=' + this._name;
-		}
+    ClickStream.prototype.track = function(type, options) {
+        var data = {
+            name: this._name,
+            host: window.location.host,
+            pr: 10,
+            cs: 2,
+            type: type
+        };
 
-		data = {
-			source: url,
-			bytesTotal: 1, // Not used. Banners should not be automatically named.
-			pr: 10,
-			cs: 2,
-			type: type,
-			height: $(window).height(),
-			width: $(window).width()
-		};
+        for(var key in options) {
+            data[key] = options[key];
+        }
 
-		for(key in options) {
-			data[key] = options[key];
-		}
+        // Only log per pr pageview:
+        if(type === "pageview" && Math.floor((Math.random() * data.pr)) !== 0) {
+            return this;
+        }
 
-		// Only log per pr pageview:
-		if(type == "pageview" && Math.floor((Math.random()*data.pr)) != 0) {
-			return this;
-		}
+        ClickStream.fire_and_forget("http://www.smelltu.is/track/" + this._code + "/", data);
 
-		_fire_and_forget("http://www.smelltu.is/track/" + this._code + "/", data);
+        return this;
+    };
 
-		return self;
-	};
-}
+    window.ClickStream = ClickStream;
+})(jQuery);
