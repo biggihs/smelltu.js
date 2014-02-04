@@ -7,7 +7,10 @@ Javascript fyrir smelltu.is
 
 * jQuery
 
-* The `onscreenpageview` requires the banner to be hosted on the same page as the parent.
+* `onscreenpageview` requires the banner to be hosted on the same page as the parent.
+
+* `onscreenpageview` requires the click_stream variable to be global
+  (don't use `var`).
 
 
 ####Usage:
