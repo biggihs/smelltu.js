@@ -33,6 +33,7 @@
 
         this.hasRun = false;
         this.clickHasRegistered = false;
+        this.bannerOnScreenDetected = false;
 
         return this;
     }
@@ -65,6 +66,19 @@
         $form.submit();
 
         return this;
+    };
+
+    ClickStream.prototype.onscreenpageview = function(options){
+      if(!this.bannerOnScreenDetected){
+        if(check_is_visible()){
+          this.bannerOnScreenDetected = true;
+          this.track("onscreenpageview",options);
+        }
+        else{
+          setTimeout("click_stream.onscreenpageview("+options.toSource()+");",5000);
+        }
+      }
+      return this;
     };
 
     ClickStream.prototype.pageview = function(options) {
@@ -100,6 +114,9 @@
         if(type === "pageview" && Math.floor((Math.random() * data.pr)) !== 0) {
             return this;
         }
+
+        if(type === "onscreenpageview" && Math.floor((Math.random() * data.pr)) !== 0) 
+            return this;
 
         ClickStream.fire_and_forget("http://www.smelltu.is/track/" + this._code + "/", data);
 

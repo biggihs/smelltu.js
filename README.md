@@ -7,16 +7,21 @@ Javascript fyrir smelltu.is
 
 * jQuery
 
+* The `onscreenpageview` requires the banner to be hosted on the same page as the parent.
+
+
 ####Usage:
 ```html
 	<script type="text/javascript">
 		$(document).ready(function() {
-			var click_stream = new ClickStream(
+			click_stream = new ClickStream(
 				'Test Banner 16.10.2012', // Good practice is to use publish date.
 				'f2cb4ee2d05fc7762b17cc3beee294fffe544275'
 			);
-			
-			click_stream.pageview();
+
+			options	= {p:10}
+			click_stream.pageview(options);
+			click_stream.onscreenpageview(options);
 			
 			$(document).click(function() {
 				click_stream.clickthrough();
